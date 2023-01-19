@@ -1,3 +1,0 @@
-add_subdirectory(ChallengeProblem)
-add_subdirectory(JetFlame)
-add_subdirectory(PistonBowl)

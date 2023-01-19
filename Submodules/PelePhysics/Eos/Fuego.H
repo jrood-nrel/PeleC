@@ -100,7 +100,6 @@ struct Fuego
   static void EY2T(amrex::Real E, amrex::Real Y[], amrex::Real& T)
   {
     // For Fuego this function is really just a wrapper for GET_T_GIVEN_EY
-    // In SRK this will be different probably
     int lierr = 0;
     GET_T_GIVEN_EY(&E, Y, &T, &lierr);
   }
@@ -118,7 +117,6 @@ struct Fuego
   static void HY2T(amrex::Real H, amrex::Real Y[], amrex::Real& T)
   {
     // For Fuego this function is really just a wrapper for GET_T_GIVEN_HY
-    // In SRK this will be different probably
     int lierr = 0;
     GET_T_GIVEN_HY(&H, Y, &T, &lierr);
   }

@@ -11,15 +11,12 @@
 #include "PhysicsConstants.H"
 #include "GammaLaw.H"
 #include "Fuego.H"
-#include "SRK.H"
 
 namespace pele::physics {
 #ifdef USE_GAMMALAW_EOS
 using EosType = eos::GammaLaw;
 #elif USE_FUEGO_EOS
 using EosType = eos::Fuego;
-#elif USE_SRK_EOS
-using EosType = eos::SRK;
 #else
 static_assert(false, "Invalid EOS specified");
 #endif

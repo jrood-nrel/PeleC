@@ -14,6 +14,5 @@
 #include "TransportParams.H"
 #include "Constant.H"
 #include "Simple.H"
-#include "Sutherland.H"
 
 #endif

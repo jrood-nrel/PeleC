@@ -117,25 +117,4 @@ speciesNames<Fuego>(amrex::Vector<std::string>& spn)
   CKSYMS_STR(spn);
 }
 
-template <>
-void
-atomic_weightsCHON<SRK>(amrex::Real atwCHON[])
-{
-  atomic_weightsCHON<Fuego>(atwCHON);
-}
-
-template <>
-void
-element_compositionCHON<SRK>(int ecompCHON[])
-{
-  element_compositionCHON<Fuego>(ecompCHON);
-}
-
-template <>
-void
-speciesNames<SRK>(amrex::Vector<std::string>& spn)
-{
-  speciesNames<Fuego>(spn);
-}
-
 } // namespace pele::physics::eos

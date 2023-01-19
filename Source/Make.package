@@ -57,18 +57,6 @@ CEXE_headers += EB.H
 CEXE_headers += Geometry.H
 CEXE_headers += SparseData.H
 
-ifeq ($(USE_PARTICLES), TRUE)
-  CEXE_sources += Particle.cpp
-endif
-
-ifeq ($(USE_SOOT), TRUE)
-  CEXE_sources += Soot.cpp
-endif
-
-ifeq ($(USE_MASA), TRUE)
-  CEXE_sources += MMS.cpp
-endif
-
 ifeq ($(USE_ASCENT), TRUE)
   CEXE_sources += PeleAscent.cpp
   CEXE_headers += PeleAscent.H

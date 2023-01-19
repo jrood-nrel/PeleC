@@ -6,19 +6,6 @@
 #include "mechanism.H"
 #include "PelePhysics.H"
 #include "ReactorTypes.H"
-#include "AMReX_Sundials.H"
-
-#ifdef AMREX_USE_HIP
-#include <nvector/nvector_hip.h>
-#endif
-
-#ifdef AMREX_USE_DPCPP
-#include <nvector/nvector_sycl.h>
-#endif
-
-#ifdef AMREX_USE_CUDA
-#include <nvector/nvector_cuda.h>
-#endif
 
 namespace pele::physics::reactions::utils {
 int check_flag(void* flagvalue, const char* funcname, int opt);

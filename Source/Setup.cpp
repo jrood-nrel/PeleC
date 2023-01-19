@@ -147,7 +147,7 @@ PeleC::variableSetUp()
   d_prob_parm_device = static_cast<ProbParmDevice*>(
     amrex::The_Arena()->alloc(sizeof(ProbParmDevice)));
   trans_parms.allocate();
-  turb_inflow.init(amrex::DefaultGeometry());
+  //turb_inflow.init(amrex::DefaultGeometry());
 
   // Get options, set phys_bc
   eb_in_domain = ebInDomain();

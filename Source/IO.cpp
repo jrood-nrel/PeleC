@@ -14,7 +14,7 @@
 #include <AMReX_EBMultiFabUtil.H>
 
 #include "mechanism.H"
-#include "PltFileManager.H"
+//#include "PltFileManager.H"
 
 #include "PeleC.H"
 #include "IO.H"
@@ -749,7 +749,7 @@ PeleC::writeBuildInfo(std::ostream& os)
 
   os << "\n\n";
 }
-
+/*
 void
 PeleC::initLevelDataFromPlt(
   const int lev, const std::string& dataPltFile, amrex::MultiFab& S_new)
@@ -861,4 +861,4 @@ PeleC::initLevelDataFromPlt(
                        rho;
     });
   amrex::Gpu::synchronize();
-}
+}*/

@@ -14,27 +14,6 @@ function(build_pelec_lib pelec_lib_name)
 
     include(SetPeleCCompileFlags)
     
-    target_sources(${pelec_lib_name}
-      PRIVATE
-      ${PELE_PHYSICS_SRC_DIR}/Utility/TurbInflow/turbinflow.cpp
-      ${PELE_PHYSICS_SRC_DIR}/Utility/TurbInflow/turbinflow.H)
-    target_include_directories(${pelec_lib_name} PUBLIC ${PELE_PHYSICS_SRC_DIR}/Utility/TurbInflow)
-    
-    target_sources(${pelec_lib_name}
-      PRIVATE
-      ${PELE_PHYSICS_SRC_DIR}/Utility/PltFileManager/PltFileManager.cpp
-      ${PELE_PHYSICS_SRC_DIR}/Utility/PltFileManager/PltFileManager.H
-      ${PELE_PHYSICS_SRC_DIR}/Utility/PltFileManager/PltFileManagerBCFill.H)
-    target_include_directories(${pelec_lib_name} PUBLIC ${PELE_PHYSICS_SRC_DIR}/Utility/PltFileManager)
-    
-    target_sources(${pelec_lib_name} PRIVATE ${AMREX_SUNDIALS_DIR}/AMReX_Sundials.H
-                                             ${AMREX_SUNDIALS_DIR}/AMReX_Sundials.cpp
-                                             ${AMREX_SUNDIALS_DIR}/AMReX_NVector_MultiFab.cpp
-                                             ${AMREX_SUNDIALS_DIR}/AMReX_NVector_MultiFab.H
-                                             ${AMREX_SUNDIALS_DIR}/AMReX_SUNMemory.cpp
-                                             ${AMREX_SUNDIALS_DIR}/AMReX_SUNMemory.H)
-    target_include_directories(${pelec_lib_name} SYSTEM PUBLIC ${AMREX_SUNDIALS_DIR})
-
     target_include_directories(${pelec_lib_name} PUBLIC "${PELE_PHYSICS_SRC_DIR}/Source")
 
     target_sources(${pelec_lib_name} PRIVATE
@@ -80,24 +59,24 @@ function(build_pelec_lib pelec_lib_name)
 
     target_sources(${pelec_lib_name}
       PRIVATE
-        ${PELE_PHYSICS_SRC_DIR}/Reactions/ReactorArkode.H
-        ${PELE_PHYSICS_SRC_DIR}/Reactions/ReactorArkode.cpp
+        #${PELE_PHYSICS_SRC_DIR}/Reactions/ReactorArkode.H
+        #${PELE_PHYSICS_SRC_DIR}/Reactions/ReactorArkode.cpp
         ${PELE_PHYSICS_SRC_DIR}/Reactions/ReactorBase.H
         ${PELE_PHYSICS_SRC_DIR}/Reactions/ReactorBase.cpp
-        ${PELE_PHYSICS_SRC_DIR}/Reactions/ReactorCvode.H
-        ${PELE_PHYSICS_SRC_DIR}/Reactions/ReactorCvode.cpp
-        ${PELE_PHYSICS_SRC_DIR}/Reactions/ReactorCvodeCustomLinSolver.H
-        ${PELE_PHYSICS_SRC_DIR}/Reactions/ReactorCvodeCustomLinSolver.cpp
-        ${PELE_PHYSICS_SRC_DIR}/Reactions/ReactorCvodeJacobian.H
-        ${PELE_PHYSICS_SRC_DIR}/Reactions/ReactorCvodeJacobian.cpp
-        ${PELE_PHYSICS_SRC_DIR}/Reactions/ReactorCvodePreconditioner.H
-        ${PELE_PHYSICS_SRC_DIR}/Reactions/ReactorCvodePreconditioner.cpp
-        ${PELE_PHYSICS_SRC_DIR}/Reactions/ReactorCvodeUtils.H
-        ${PELE_PHYSICS_SRC_DIR}/Reactions/ReactorCvodeUtils.cpp
+        #${PELE_PHYSICS_SRC_DIR}/Reactions/ReactorCvode.H
+        #${PELE_PHYSICS_SRC_DIR}/Reactions/ReactorCvode.cpp
+        #${PELE_PHYSICS_SRC_DIR}/Reactions/ReactorCvodeCustomLinSolver.H
+        #${PELE_PHYSICS_SRC_DIR}/Reactions/ReactorCvodeCustomLinSolver.cpp
+        #${PELE_PHYSICS_SRC_DIR}/Reactions/ReactorCvodeJacobian.H
+        #${PELE_PHYSICS_SRC_DIR}/Reactions/ReactorCvodeJacobian.cpp
+        #${PELE_PHYSICS_SRC_DIR}/Reactions/ReactorCvodePreconditioner.H
+        #${PELE_PHYSICS_SRC_DIR}/Reactions/ReactorCvodePreconditioner.cpp
+        #${PELE_PHYSICS_SRC_DIR}/Reactions/ReactorCvodeUtils.H
+        #${PELE_PHYSICS_SRC_DIR}/Reactions/ReactorCvodeUtils.cpp
         ${PELE_PHYSICS_SRC_DIR}/Reactions/ReactorNull.H
         ${PELE_PHYSICS_SRC_DIR}/Reactions/ReactorNull.cpp
-        ${PELE_PHYSICS_SRC_DIR}/Reactions/ReactorRK64.H
-        ${PELE_PHYSICS_SRC_DIR}/Reactions/ReactorRK64.cpp
+        #${PELE_PHYSICS_SRC_DIR}/Reactions/ReactorRK64.H
+        #${PELE_PHYSICS_SRC_DIR}/Reactions/ReactorRK64.cpp
         ${PELE_PHYSICS_SRC_DIR}/Reactions/ReactorTypes.H
         ${PELE_PHYSICS_SRC_DIR}/Reactions/ReactorUtils.H
         ${PELE_PHYSICS_SRC_DIR}/Reactions/ReactorUtils.cpp
@@ -107,16 +86,6 @@ function(build_pelec_lib pelec_lib_name)
     include(AMReXBuildInfo)
     generate_buildinfo(${pelec_lib_name} ${CMAKE_SOURCE_DIR})
     target_include_directories(${pelec_lib_name} SYSTEM PUBLIC ${AMREX_SUBMOD_LOCATION}/Tools/C_scripts)
-    
-    target_link_libraries(${pelec_lib_name} PUBLIC sundials_arkode sundials_cvode)
-    
-    if(PELEC_ENABLE_CUDA)
-      target_link_libraries(${pelec_lib_name} PUBLIC sundials_nveccuda sundials_sunlinsolcusolversp sundials_sunmatrixcusparse)
-    elseif(PELEC_ENABLE_HIP)
-      target_link_libraries(${pelec_lib_name} PUBLIC sundials_nvechip)
-    elseif(PELEC_ENABLE_DPCPP)
-      target_link_libraries(${pelec_lib_name} PUBLIC sundials_nvecsycl)
-    endif()
     
     if(PELEC_ENABLE_MPI)
       target_link_libraries(${pelec_lib_name} PUBLIC $<$<BOOL:${MPI_CXX_FOUND}>:MPI::MPI_CXX>)

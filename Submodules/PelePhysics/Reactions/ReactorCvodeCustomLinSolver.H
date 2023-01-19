@@ -3,16 +3,6 @@
 
 #include <AMReX_BLProfiler.H>
 #include <AMReX_REAL.H>
-#include <nvector/nvector_serial.h>
-#include <sunmatrix/sunmatrix_dense.h>
-#include <sunmatrix/sunmatrix_sparse.h>
-#include <sunlinsol/sunlinsol_dense.h>
-#include <sunlinsol/sunlinsol_spgmr.h>
-#ifdef AMREX_USE_CUDA
-#include <nvector/nvector_cuda.h>
-#include <sunmatrix/sunmatrix_cusparse.h>
-#include <sunlinsol/sunlinsol_cusolversp_batchqr.h>
-#endif
 #include "mechanism.H"
 
 namespace pele::physics::reactions::cvode {

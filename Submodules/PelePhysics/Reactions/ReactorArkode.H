@@ -2,18 +2,6 @@
 #define REACTORARKODE_H
 
 #include "ReactorBase.H"
-#include "AMReX_Sundials.H"
-#include <arkode/arkode_arkstep.h>
-#include <arkode/arkode_erkstep.h>
-#include <nvector/nvector_serial.h>
-
-#ifdef AMREX_USE_DPCPP
-#include <nvector/nvector_sycl.h>
-#endif
-
-#ifdef AMREX_USE_HIP
-#include <nvector/nvector_hip.h>
-#endif
 
 #ifdef AMREX_USE_CUDA
 #include <cuda_runtime.h>
@@ -21,9 +9,6 @@
 #include <cusolverSp.h>
 #include <cusparse.h>
 #include <cuda_runtime_api.h>
-#include <nvector/nvector_cuda.h>
-#include <sunmatrix/sunmatrix_cusparse.h>
-#include <sunlinsol/sunlinsol_cusolversp_batchqr.h>
 #endif
 
 namespace pele::physics::reactions {

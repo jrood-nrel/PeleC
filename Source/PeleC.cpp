@@ -101,7 +101,7 @@ pele::physics::transport::TransportParams<
   pele::physics::PhysicsType::transport_type>
   PeleC::trans_parms;
 
-pele::physics::turbinflow::TurbInflow PeleC::turb_inflow;
+//pele::physics::turbinflow::TurbInflow PeleC::turb_inflow;
 
 amrex::Vector<int> PeleC::src_list;
 
@@ -676,9 +676,9 @@ PeleC::initData()
         pc_check_initial_species(i, j, k, sarrs[nbx]);
       });
     amrex::Gpu::synchronize();
-  } else {
-    initLevelDataFromPlt(level, init_pltfile, S_new);
-  }
+  } //else {
+    //initLevelDataFromPlt(level, init_pltfile, S_new);
+  //}
 
   enforce_consistent_e(S_new);
 

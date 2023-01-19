@@ -1,27 +1,5 @@
 #include "ReactorBase.H"
 
-#include <arkode/arkode_arkstep.h>
-#include <arkode/arkode_erkstep.h>
-#include <nvector/nvector_serial.h>
-
-#include <cvode/cvode.h>
-
-#ifdef AMREX_USE_GPU
-#include "AMReX_SUNMemory.H"
-#endif
-
-#ifdef AMREX_USE_DPCPP
-#include <nvector/nvector_sycl.h>
-#endif
-
-#ifdef AMREX_USE_HIP
-#include <nvector/nvector_hip.h>
-#endif
-
-#ifdef AMREX_USE_CUDA
-#include <nvector/nvector_cuda.h>
-#endif
-
 namespace pele::physics::reactions {
 
 void
@@ -50,7 +28,7 @@ ReactorBase::set_typ_vals_ode(const std::vector<amrex::Real>& ExtTypVals)
     amrex::Print() << "Temp : " << m_typ_vals[size_ETV - 1] << std::endl;
   }
 }
-
+/*
 void
 ReactorBase::set_sundials_solver_tols(
   // cppcheck-suppress constParameter
@@ -70,17 +48,17 @@ ReactorBase::set_sundials_solver_tols(
 
 #if defined(AMREX_USE_CUDA)
   N_Vector atol = N_VNewWithMemHelp_Cuda(
-    neq_tot, /*use_managed_mem=*/false,
+    neq_tot, false,
     *amrex::sundials::The_SUNMemory_Helper(), sunctx);
   amrex::Real* ratol = N_VGetHostArrayPointer_Cuda(atol);
 #elif defined(AMREX_USE_HIP)
   N_Vector atol = N_VNewWithMemHelp_Hip(
-    neq_tot, /*use_managed_mem=*/false,
+    neq_tot, false,
     *amrex::sundials::The_SUNMemory_Helper(), sunctx);
   amrex::Real* ratol = N_VGetHostArrayPointer_Hip(atol);
 #elif defined(AMREX_USE_DPCPP)
   N_Vector atol = N_VNewWithMemHelp_Sycl(
-    neq_tot, /*use_managed_mem=*/false,
+    neq_tot, false,
     *amrex::sundials::The_SUNMemory_Helper(),
     &amrex::Gpu::Device::streamQueue(), sunctx);
   amrex::Real* ratol = N_VGetHostArrayPointer_Sycl(atol);
@@ -140,5 +118,5 @@ ReactorBase::set_sundials_solver_tols(
 
   N_VDestroy(atol);
 }
-
+*/
 } // namespace pele::physics::reactions

@@ -20,7 +20,6 @@
 #include "prob_parm.H"
 #include "PelePhysics.H"
 #include "ReactorBase.H"
-#include "turbinflow.H"
 #include "SparseData.H"
 #include "EBStencilTypes.H"
 
@@ -101,8 +100,8 @@ public:
   static void writeBuildInfo(std::ostream& os);
 
   // Initialize level from plt file
-  void initLevelDataFromPlt(
-    const int lev, const std::string& pltFile, amrex::MultiFab& S_new);
+  //void initLevelDataFromPlt(
+  //  const int lev, const std::string& pltFile, amrex::MultiFab& S_new);
 
   // Define data descriptors.
   static void variableSetUp();
@@ -590,7 +589,6 @@ public:
   static pele::physics::transport::TransportParams<
     pele::physics::PhysicsType::transport_type>
     trans_parms;
-  static pele::physics::turbinflow::TurbInflow turb_inflow;
 
 #ifdef PELEC_USE_SOOT
   static SootModel soot_model;

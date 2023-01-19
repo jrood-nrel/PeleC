@@ -8,12 +8,12 @@
 struct PCHypFillExtDir
 {
   ProbParmDevice const* lprobparm;
-  bool m_do_turb_inflow{false};
+  //bool m_do_turb_inflow{false};
 
   AMREX_GPU_HOST
   constexpr explicit PCHypFillExtDir(
-    const ProbParmDevice* d_prob_parm, const bool do_turb_inflow)
-    : lprobparm(d_prob_parm), m_do_turb_inflow(do_turb_inflow)
+    const ProbParmDevice* d_prob_parm/*, const bool do_turb_inflow*/)
+    : lprobparm(d_prob_parm)//, m_do_turb_inflow(do_turb_inflow)
   {
   }
 
@@ -50,11 +50,11 @@ struct PCHypFillExtDir
       for (int n = 0; n < NVAR; n++) {
         s_int[n] = dest(loc, n);
       }
-      if (m_do_turb_inflow && (iv[idir] == domlo[idir] - 1)) {
-        for (int n = 0; n < NVAR; n++) {
-          s_ext[n] = dest(iv, n);
-        }
-      }
+      //if (m_do_turb_inflow && (iv[idir] == domlo[idir] - 1)) {
+      //  for (int n = 0; n < NVAR; n++) {
+      //    s_ext[n] = dest(iv, n);
+      //  }
+      //}
       bcnormal(x, s_int, s_ext, idir, +1, time, geom, *lprobparm);
       for (int n = 0; n < NVAR; n++) {
         dest(iv, n) = s_ext[n];
@@ -66,11 +66,11 @@ struct PCHypFillExtDir
       for (int n = 0; n < NVAR; n++) {
         s_int[n] = dest(loc, n);
       }
-      if (m_do_turb_inflow && (iv[idir] == domlo[idir] - 1)) {
-        for (int n = 0; n < NVAR; n++) {
-          s_ext[n] = dest(iv, n);
-        }
-      }
+      //if (m_do_turb_inflow && (iv[idir] == domlo[idir] - 1)) {
+      //  for (int n = 0; n < NVAR; n++) {
+      //    s_ext[n] = dest(iv, n);
+      //  }
+      //}
       bcnormal(x, s_int, s_ext, idir, -1, time, geom, *lprobparm);
       for (int n = 0; n < NVAR; n++) {
         dest(iv, n) = s_ext[n];
@@ -84,11 +84,11 @@ struct PCHypFillExtDir
       for (int n = 0; n < NVAR; n++) {
         s_int[n] = dest(loc, n);
       }
-      if (m_do_turb_inflow && (iv[idir] == domlo[idir] - 1)) {
-        for (int n = 0; n < NVAR; n++) {
-          s_ext[n] = dest(iv, n);
-        }
-      }
+      //if (m_do_turb_inflow && (iv[idir] == domlo[idir] - 1)) {
+      //  for (int n = 0; n < NVAR; n++) {
+      //    s_ext[n] = dest(iv, n);
+      //  }
+      //}
       bcnormal(x, s_int, s_ext, idir, +1, time, geom, *lprobparm);
       for (int n = 0; n < NVAR; n++) {
         dest(iv, n) = s_ext[n];
@@ -100,11 +100,11 @@ struct PCHypFillExtDir
       for (int n = 0; n < NVAR; n++) {
         s_int[n] = dest(loc, n);
       }
-      if (m_do_turb_inflow && (iv[idir] == domhi[idir] + 1)) {
-        for (int n = 0; n < NVAR; n++) {
-          s_ext[n] = dest(iv, n);
-        }
-      }
+      //if (m_do_turb_inflow && (iv[idir] == domhi[idir] + 1)) {
+      //  for (int n = 0; n < NVAR; n++) {
+      //    s_ext[n] = dest(iv, n);
+      //  }
+      //}
       bcnormal(x, s_int, s_ext, idir, -1, time, geom, *lprobparm);
       for (int n = 0; n < NVAR; n++) {
         dest(iv, n) = s_ext[n];
@@ -118,11 +118,11 @@ struct PCHypFillExtDir
       for (int n = 0; n < NVAR; n++) {
         s_int[n] = dest(loc, n);
       }
-      if (m_do_turb_inflow && (iv[idir] == domhi[idir] + 1)) {
-        for (int n = 0; n < NVAR; n++) {
-          s_ext[n] = dest(iv, n);
-        }
-      }
+      //if (m_do_turb_inflow && (iv[idir] == domhi[idir] + 1)) {
+      //  for (int n = 0; n < NVAR; n++) {
+      //    s_ext[n] = dest(iv, n);
+      //  }
+      //}
       bcnormal(x, s_int, s_ext, idir, +1, time, geom, *lprobparm);
       for (int n = 0; n < NVAR; n++) {
         dest(iv, n) = s_ext[n];
@@ -134,11 +134,11 @@ struct PCHypFillExtDir
       for (int n = 0; n < NVAR; n++) {
         s_int[n] = dest(loc, n);
       }
-      if (m_do_turb_inflow && (iv[idir] == domhi[idir] + 1)) {
-        for (int n = 0; n < NVAR; n++) {
-          s_ext[n] = dest(iv, n);
-        }
-      }
+      //if (m_do_turb_inflow && (iv[idir] == domhi[idir] + 1)) {
+      //  for (int n = 0; n < NVAR; n++) {
+      //    s_ext[n] = dest(iv, n);
+      //  }
+      //}
       bcnormal(x, s_int, s_ext, idir, -1, time, geom, *lprobparm);
       for (int n = 0; n < NVAR; n++) {
         dest(iv, n) = s_ext[n];
@@ -178,7 +178,7 @@ pc_bcfill_hyp(
   const int bcomp,
   const int scomp)
 {
-
+/*
   if (PeleC::turb_inflow.is_initialized()) {
     for (int dir = 0; dir < AMREX_SPACEDIM; ++dir) {
       auto bndryBoxLO = amrex::Box(amrex::adjCellLo(geom.Domain(), dir) & bx);
@@ -212,10 +212,10 @@ pc_bcfill_hyp(
       }
     }
   }
-
+*/
   const ProbParmDevice* lprobparm = PeleC::d_prob_parm_device;
   amrex::GpuBndryFuncFab<PCHypFillExtDir> hyp_bndry_func(
-    PCHypFillExtDir{lprobparm, PeleC::turb_inflow.is_initialized()});
+    PCHypFillExtDir{lprobparm/*, PeleC::turb_inflow.is_initialized()*/});
   hyp_bndry_func(bx, data, dcomp, numcomp, geom, time, bcr, bcomp, scomp);
 }
 

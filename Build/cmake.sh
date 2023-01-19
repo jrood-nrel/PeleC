@@ -8,14 +8,10 @@ cmake -DCMAKE_INSTALL_PREFIX:PATH=./install \
       -DMPIEXEC_PREFLAGS:STRING=--oversubscribe \
       -DCMAKE_BUILD_TYPE:STRING=Release \
       -DPELEC_DIM:STRING=3 \
-      -DPELEC_ENABLE_AMREX_EB:BOOL=ON \
       -DPELEC_ENABLE_MPI:BOOL=ON \
       -DPELEC_ENABLE_TESTS:BOOL=ON \
       -DPELEC_ENABLE_FCOMPARE:BOOL=OFF \
       -DPELEC_ENABLE_FCOMPARE_FOR_TESTS:BOOL=OFF \
-      -DPELEC_ENABLE_MASA:BOOL=ON \
-      -DMASA_DIR:STRING=$(spack location -i masa) \
-      -DPELEC_ENABLE_ALL_WARNINGS:BOOL=ON \
       -DPELEC_ENABLE_CPPCHECK:BOOL=OFF \
       -DPELEC_ENABLE_CLANG_TIDY:BOOL=OFF \
       -DPELEC_ENABLE_CUDA:BOOL=OFF \
@@ -23,5 +19,5 @@ cmake -DCMAKE_INSTALL_PREFIX:PATH=./install \
       -DPYTHON_EXECUTABLE=$(which python3) \
       -DPELEC_PRECISION:STRING=DOUBLE \
       .. 
-#cmake --build . --parallel $(sysctl -n hw.ncpu)
+cmake --build . --parallel $(sysctl -n hw.ncpu)
 #ctest -j $(sysctl -n hw.ncpu)

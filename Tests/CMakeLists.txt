@@ -2,8 +2,6 @@
 # PeleC Testing
 #=============================================================================
 
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/CTestCustom.cmake ${CMAKE_BINARY_DIR}/CTestCustom.cmake)
-
 if(PELEC_ENABLE_FCOMPARE_FOR_TESTS)
   if("${PELEC_REFERENCE_GOLDS_DIRECTORY}" STREQUAL "")
     message(FATAL_ERROR "To reference gold files, PELEC_REFERENCE_GOLDS_DIRECTORY must be set and exist")

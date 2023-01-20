@@ -130,8 +130,6 @@ public:
   void
   extend_signed_distance(amrex::MultiFab* signDist, amrex::Real extendFactor);
 
-  void set_typical_values_chem();
-
   // Proceed with next timestep?
   int okToContinue() override;
 

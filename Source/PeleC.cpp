@@ -1000,12 +1000,6 @@ PeleC::post_timestep(int iteration)
       }
     }
   }
-
-  if (
-    do_react && use_typical_vals_chem &&
-    parent->levelSteps(0) % reset_typical_vals_int == 0) {
-    set_typical_values_chem();
-  }
 }
 
 void
@@ -1021,9 +1015,6 @@ PeleC::post_restart()
   // Initialize the reactor
   if (do_react) {
     init_reactor();
-    if (use_typical_vals_chem) {
-      set_typical_values_chem();
-    }
   }
 
   // initialize LES variables
@@ -1054,10 +1045,6 @@ PeleC::post_regrid(int lbase, int /*new_finest*/)
   fine_mask.clear();
 
   amrex::ignore_unused(lbase);
-
-  if ((do_react) && (use_typical_vals_chem)) {
-    set_typical_values_chem();
-  }
 }
 
 void
@@ -1072,9 +1059,6 @@ PeleC::post_init(amrex::Real /*stop_time*/)
   if (do_react) {
 
     bool react_init = true;
-    if (use_typical_vals_chem) {
-      set_typical_values_chem();
-    }
 
     react_state(cumtime, dtlev, react_init);
   }

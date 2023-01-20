@@ -27,17 +27,3 @@ endif()
 
 separate_arguments(PELEC_CXX_FLAGS)
 target_compile_options(${pelec_lib_name} PUBLIC $<$<COMPILE_LANGUAGE:CXX>:${PELEC_CXX_FLAGS}>)
-
-# Use flags to avoid warnings from certain files
-if((NOT PELEC_ENABLE_CUDA) AND (CMAKE_CXX_COMPILER_ID MATCHES "^(GNU|Clang|AppleClang)$"))
-  set(NO_WARN_CXX_FLAGS "-w")
-endif()
-
-set_source_files_properties(${AMREX_SUNDIALS_DIR}/AMReX_Sundials.H PROPERTIES COMPILE_OPTIONS "${NO_WARN_CXX_FLAGS}")
-set_source_files_properties(${AMREX_SUNDIALS_DIR}/AMReX_Sundials.cpp PROPERTIES COMPILE_OPTIONS "${NO_WARN_CXX_FLAGS}")
-set_source_files_properties(${AMREX_SUNDIALS_DIR}/AMReX_NVector_MultiFab.cpp PROPERTIES COMPILE_OPTIONS "${NO_WARN_CXX_FLAGS}")
-set_source_files_properties(${AMREX_SUNDIALS_DIR}/AMReX_NVector_MultiFab.H PROPERTIES COMPILE_OPTIONS "${NO_WARN_CXX_FLAGS}")
-set_source_files_properties(${AMREX_SUNDIALS_DIR}/AMReX_SUNMemory.cpp PROPERTIES COMPILE_OPTIONS "${NO_WARN_CXX_FLAGS}")
-set_source_files_properties(${AMREX_SUNDIALS_DIR}/AMReX_SUNMemory.H PROPERTIES COMPILE_OPTIONS "${NO_WARN_CXX_FLAGS}")
-set_source_files_properties(${PELE_PHYSICS_MECHANISM_DIR}/mechanism.cpp PROPERTIES COMPILE_OPTIONS "${NO_WARN_CXX_FLAGS}")
-set_source_files_properties(${PELE_PHYSICS_MECHANISM_DIR}/mechanism.H PROPERTIES COMPILE_OPTIONS "${NO_WARN_CXX_FLAGS}")

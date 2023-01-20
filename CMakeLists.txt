@@ -5,15 +5,12 @@ project(PeleC CXX)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE INTERNAL "")
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/CMake")
 include(CMakePackageConfigHelpers)
-include(PeleCUtils)
 
 ########################## OPTIONS #####################################
 
 #General options for all executables in the project
 set(PELEC_DIM "3" CACHE STRING "Number of physical dimensions")
-option(PELEC_ENABLE_AMREX_PARTICLES "Enable particles in AMReX library" ON)
 option(PELEC_ENABLE_CLANG_TIDY "Enable clang-tidy analysis" OFF)
-option(PELEC_ENABLE_CPPCHECK "Enable cppcheck analysis" OFF)
 option(PELEC_ENABLE_FCOMPARE "Enable building fcompare when not testing" OFF)
 option(PELEC_ENABLE_FCOMPARE_FOR_TESTS "Check test plots against gold files" OFF)
 option(PELEC_SAVE_GOLDS "Enable saving of gold files to a specified directory" OFF)
@@ -37,7 +34,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-if(PELEC_ENABLE_FCOMPARE_FOR_TESTS OR PELEC_ENABLE_AMREX_PARTICLES)
+if(PELEC_ENABLE_FCOMPARE_FOR_TESTS)
   set(PELEC_ENABLE_FCOMPARE ON)
 endif()
 
@@ -96,7 +93,14 @@ message(STATUS "CMAKE_CXX_COMPILER_VERSION = ${CMAKE_CXX_COMPILER_VERSION}")
 message(STATUS "CMAKE_BUILD_TYPE = ${CMAKE_BUILD_TYPE}")
 message(STATUS "PELEC_PRECISION = ${PELEC_PRECISION}")
 
-init_code_checks()
+if(PELEC_ENABLE_CLANG_TIDY)
+  find_program(CLANG_TIDY_EXE NAMES "clang-tidy")
+  if(CLANG_TIDY_EXE)
+    message(STATUS "clang-tidy found: ${CLANG_TIDY_EXE}")
+  else()
+    message(WARNING "clang-tidy not found.")
+  endif()
+endif()
 
 include(SetRpath)
 

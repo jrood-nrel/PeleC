@@ -3,10 +3,6 @@
 #include "PeleC.H"
 #include "IndexDefines.H"
 
-#ifdef PELEC_USE_SPRAY
-#include "SprayParticles.H"
-#endif
-
 amrex::Real
 PeleC::advance(
   amrex::Real time, amrex::Real dt, int amr_iteration, int amr_ncycle)
@@ -89,11 +85,6 @@ PeleC::do_mol_advance(
   }
 
   int nGrow_FP_border = numGrow() + nGrowF;
-#ifdef PELEC_USE_SPRAY
-  const int spray_state_ghosts = sprayStateGhosts(amr_ncycle);
-  nGrow_FP_border = amrex::max(nGrow_FP_border, spray_state_ghosts);
-  AMREX_ASSERT(Sborder.nGrow() >= nGrow_FP_border);
-#endif
 
   FillPatcherFill(Sborder, 0, NVAR, nGrow_FP_border, time, State_Type, 0);
   amrex::Real flux_factor = 0;
@@ -266,14 +257,6 @@ PeleC::do_sdc_iteration(
     fill_Sborder = true;
     nGrow_FP_border = numGrow();
   }
-#ifdef PELEC_USE_SPRAY
-  if (do_spray_particles) {
-    const int spray_state_ghosts = sprayStateGhosts(amr_ncycle);
-    fill_Sborder = true;
-    nGrow_FP_border = amrex::max(nGrow_FP_border, spray_state_ghosts);
-    AMREX_ASSERT(Sborder.nGrow() >= nGrow_FP_border);
-  }
-#endif
 
   if (fill_Sborder) {
     FillPatcherFill(Sborder, 0, NVAR, nGrow_FP_border, time, State_Type, 0);
@@ -324,11 +307,8 @@ PeleC::do_sdc_iteration(
 
   // Now update t_new sources (diffusion separate because it requires a fill
   // patch)
-  if (do_diffuse || do_spray_particles) {
+  if (do_diffuse) {
     int nGrowDiff = numGrow();
-    if (do_spray_particles && level > 0) {
-      nGrowDiff = amrex::max(nGrowDiff, nGrow_FP_border);
-    }
     FillPatcherFill(Sborder, 0, NVAR, nGrowDiff, time + dt, State_Type, 0);
   }
   if (do_diffuse) {

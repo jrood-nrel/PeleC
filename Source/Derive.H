@@ -3,10 +3,6 @@
 
 #include <AMReX_FArrayBox.H>
 #include <AMReX_Geometry.H>
-#ifdef PELEC_USE_MASA
-#include <masa.h>
-using namespace MASA;
-#endif
 
 #include "EB.H"
 
@@ -330,60 +326,4 @@ void pc_dercv(
   const int* bcrec,
   const int level);
 
-#ifdef PELEC_USE_MASA
-void pc_derrhommserror(
-  const amrex::Box& bx,
-  amrex::FArrayBox& derfab,
-  int dcomp,
-  int ncomp,
-  const amrex::FArrayBox& datfab,
-  const amrex::Geometry& geomdata,
-  amrex::Real time,
-  const int* bcrec,
-  const int level);
-
-void pc_derummserror(
-  const amrex::Box& bx,
-  amrex::FArrayBox& derfab,
-  int dcomp,
-  int ncomp,
-  const amrex::FArrayBox& datfab,
-  const amrex::Geometry& geomdata,
-  amrex::Real time,
-  const int* bcrec,
-  const int level);
-
-void pc_dervmmserror(
-  const amrex::Box& bx,
-  amrex::FArrayBox& derfab,
-  int dcomp,
-  int ncomp,
-  const amrex::FArrayBox& datfab,
-  const amrex::Geometry& geomdata,
-  amrex::Real time,
-  const int* bcrec,
-  const int level);
-
-void pc_derwmmserror(
-  const amrex::Box& bx,
-  amrex::FArrayBox& derfab,
-  int dcomp,
-  int ncomp,
-  const amrex::FArrayBox& datfab,
-  const amrex::Geometry& geomdata,
-  amrex::Real time,
-  const int* bcrec,
-  const int level);
-
-void pc_derpmmserror(
-  const amrex::Box& bx,
-  amrex::FArrayBox& derfab,
-  int dcomp,
-  int ncomp,
-  const amrex::FArrayBox& datfab,
-  const amrex::Geometry& geomdata,
-  amrex::Real time,
-  const int* bcrec,
-  const int level);
-#endif
 #endif

@@ -14,15 +14,10 @@
 #include <AMReX_EBMultiFabUtil.H>
 
 #include "mechanism.H"
-//#include "PltFileManager.H"
 
 #include "PeleC.H"
 #include "IO.H"
 #include "IndexDefines.H"
-
-#ifdef PELEC_USE_SPRAY
-#include "SprayParticles.H"
-#endif
 
 // PeleC maintains an internal checkpoint version numbering system.
 // This allows us to maintain backwards compatibility with checkpoints
@@ -257,12 +252,6 @@ PeleC::checkPoint(
 {
   amrex::AmrLevel::checkPoint(dir, os, how, dump_old);
 
-#ifdef PELEC_USE_SPRAY
-  if (SprayPC != nullptr) {
-    SprayPC->SprayParticleIO(level, true, 0, dir);
-  }
-#endif
-
   if (level == 0 && amrex::ParallelDescriptor::IOProcessor()) {
     {
       std::ofstream PeleCHeaderFile;
@@ -369,18 +358,6 @@ PeleC::setPlotVariables()
     }
   }
 
-#ifdef PELEC_USE_SOOT
-  if (plot_soot && add_soot_src) {
-    for (int i = 0; i < NumSootVars; i++) {
-      amrex::Amr::addStatePlotVar(desc_lst[State_Type].name(FirstSootVar + i));
-    }
-  } else {
-    for (int i = 0; i < NumSootVars; i++) {
-      amrex::Amr::deleteStatePlotVar(
-        desc_lst[State_Type].name(FirstSootVar + i));
-    }
-  }
-#endif
   int plot_reactions = 1;
   pp.query("plot_reactions", plot_reactions);
   if (plot_reactions == 0) {
@@ -724,141 +701,5 @@ PeleC::writeBuildInfo(std::ostream& os)
 
   os << std::setw(35) << std::left << "NUM_LIN=" << NUM_LIN << std::endl;
 
-#ifdef PELEC_USE_MASA
-  os << std::setw(35) << std::left << "PELEC_USE_MASA " << std::setw(6) << "ON"
-     << std::endl;
-#else
-  os << std::setw(35) << std::left << "PELEC_USE_MASA " << std::setw(6) << "OFF"
-     << std::endl;
-#endif
-
-#ifdef PELEC_USE_SPRAY
-  os << std::setw(35) << std::left << "PELEC_USE_SPRAY " << std::setw(6) << "ON"
-     << std::endl;
-#else
-  os << std::setw(35) << std::left << "PELEC_USE_SPRAY " << std::setw(6)
-     << "OFF" << std::endl;
-#endif
-#ifdef PELEC_USE_SOOT
-  os << std::setw(35) << std::left << "PELEC_USE_SOOT " << std::setw(6) << "ON"
-     << std::endl;
-#else
-  os << std::setw(35) << std::left << "PELEC_USE_SOOT " << std::setw(6) << "OFF"
-     << std::endl;
-#endif
-
   os << "\n\n";
 }
-/*
-void
-PeleC::initLevelDataFromPlt(
-  const int lev, const std::string& dataPltFile, amrex::MultiFab& S_new)
-{
-  amrex::Print() << "Using data (rho, u, T, Y) from pltfile " << dataPltFile
-                 << std::endl;
-  pele::physics::pltfilemanager::PltFileManager pltData(dataPltFile);
-  const auto plt_vars = pltData.getVariableList();
-
-  // Read rho, u, temperature (required)
-  std::map<std::string, int> vars{
-    {"density", -1}, {"x_velocity", -1}, {"Temp", -1}};
-  for (auto& var : vars) {
-    var.second = find_position(plt_vars, var.first);
-    if (var.second == -1) {
-      amrex::Abort("Unable to find variable in plot file: " + var.first);
-    }
-  }
-  pltData.fillPatchFromPlt(lev, geom, vars["density"], URHO, 1, S_new);
-  pltData.fillPatchFromPlt(
-    lev, geom, vars["x_velocity"], UMX, AMREX_SPACEDIM, S_new);
-  pltData.fillPatchFromPlt(lev, geom, vars["Temp"], UTEMP, 1, S_new);
-
-  // Copy species from the plot file
-  for (int n = 0; n < spec_names.size(); n++) {
-    const auto& spec = spec_names.at(n);
-    const int pos = find_position(plt_vars, "Y(" + spec + ")");
-    if (pos != -1) {
-      pltData.fillPatchFromPlt(lev, geom, pos, UFS + n, 1, S_new);
-    }
-  }
-
-  // Sanity check the species, clean them up if they aren't too bad
-  auto sarrs = S_new.arrays();
-  const auto tol = init_pltfile_massfrac_tol;
-  amrex::ParallelFor(
-    S_new, [=] AMREX_GPU_DEVICE(int nbx, int i, int j, int k) noexcept {
-      auto sarr = sarrs[nbx];
-      amrex::Real sumY = 0.0;
-
-      for (int n = 0; n < NUM_SPECIES; n++) {
-        // if the species is not too far out of bounds, clip it
-        const auto mf = sarr(i, j, k, UFS + n);
-        if ((mf < 0.0) || (1.0 < mf)) {
-          if (((-tol < mf) && (mf < 0.0)) || ((1.0 < mf) && (mf < 1 + tol))) {
-            sarr(i, j, k, UFS + n) =
-              amrex::min<amrex::Real>(1.0, amrex::max<amrex::Real>(0.0, mf));
-          } else {
-#ifdef AMREX_USE_GPU
-            AMREX_DEVICE_PRINTF(
-              "Species mass fraction is out of bounds (spec, value): (%d, %g)",
-              n, mf);
-            amrex::Abort();
-#else
-            amrex::Abort(
-              "Species mass fraction is out of bounds (spec, value): ( " +
-              std::to_string(n) + ", " + std::to_string(mf) + ")");
-#endif
-          }
-        }
-
-        sumY += sarr(i, j, k, UFS + n);
-      }
-
-      // If the sumY isn't too far from 1, renormalize
-      if (amrex::Math::abs(1.0 - sumY) < tol) {
-        for (int n = 0; n < NUM_SPECIES; n++) {
-          sarr(i, j, k, UFS + n) /= sumY;
-        }
-      } else {
-#ifdef AMREX_USE_GPU
-        AMREX_DEVICE_PRINTF(
-          "Species mass fraction don't sum to 1. The sum is: %g", sumY);
-        amrex::Abort();
-#else
-        amrex::Abort(
-          "Species mass fraction don't sum to 1. The sum is: " +
-          std::to_string(sumY));
-#endif
-      }
-    });
-  amrex::Gpu::synchronize();
-
-  // Convert to conserved variables
-  amrex::ParallelFor(
-    S_new, [=] AMREX_GPU_DEVICE(int nbx, int i, int j, int k) noexcept {
-      auto sarr = sarrs[nbx];
-      const amrex::Real rho = sarr(i, j, k, URHO);
-      const amrex::Real temp = sarr(i, j, k, UTEMP);
-      amrex::Real massfrac[NUM_SPECIES] = {0.0};
-      for (int n = 0; n < NUM_SPECIES; n++) {
-        massfrac[n] = sarr(i, j, k, UFS + n);
-        sarr(i, j, k, UFS + n) *= rho;
-      }
-      AMREX_D_TERM(sarr(i, j, k, UMX) *= rho;, sarr(i, j, k, UMY) *= rho;
-                   , sarr(i, j, k, UMZ) *= rho;)
-
-      auto eos = pele::physics::PhysicsType::eos();
-      amrex::Real eint = 0.0;
-      eos.RTY2E(rho, temp, massfrac, eint);
-
-      sarr(i, j, k, UEINT) = rho * eint;
-      sarr(i, j, k, UEDEN) =
-        rho * eint + 0.5 *
-                       (AMREX_D_TERM(
-                         sarr(i, j, k, UMX) * sarr(i, j, k, UMX),
-                         +sarr(i, j, k, UMY) * sarr(i, j, k, UMY),
-                         +sarr(i, j, k, UMZ) * sarr(i, j, k, UMZ))) /
-                       rho;
-    });
-  amrex::Gpu::synchronize();
-}*/

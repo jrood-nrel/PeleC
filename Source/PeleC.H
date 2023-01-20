@@ -10,10 +10,6 @@
 #include <AMReX_EBCellFlag.H>
 #include <AMReX_MultiCutFab.H>
 
-#ifdef AMREX_PARTICLES
-#include <AMReX_Particles.H>
-#endif
-
 #include "Filter.H"
 #include "Tagging.H"
 #include "IndexDefines.H"
@@ -27,26 +23,7 @@ enum StateType { State_Type = 0, Reactions_Type, Work_Estimate_Type };
 
 // Create storage for all source terms.
 
-enum sources {
-  ext_src = 0,
-  forcing_src,
-  spray_src,
-  diff_src,
-  les_src,
-  soot_src,
-#ifdef PELEC_USE_MASA
-  mms_src,
-#endif
-  num_src
-};
-
-// Forward declarations
-#ifdef PELEC_USE_SOOT
-class SootModel;
-#endif
-#ifdef PELEC_USE_SPRAY
-class SprayParticleContainer;
-#endif
+enum sources { ext_src = 0, forcing_src, diff_src, les_src, num_src };
 
 AMREX_FORCE_INLINE static bool
 ebInDomain()
@@ -100,7 +77,7 @@ public:
   static void writeBuildInfo(std::ostream& os);
 
   // Initialize level from plt file
-  //void initLevelDataFromPlt(
+  // void initLevelDataFromPlt(
   //  const int lev, const std::string& pltFile, amrex::MultiFab& S_new);
 
   // Define data descriptors.
@@ -111,82 +88,6 @@ public:
 
   // Initialize grid data at problem start-up.
   void initData() override;
-
-#ifdef PELEC_USE_SPRAY
-
-  // Read spray related inputs
-  static void readSprayParams();
-
-  // Define particle related variables
-  static void defineParticles();
-
-  // Initialize particle locations and velocities (and strengths if relevant)
-  void initParticles();
-
-  // Create relevant particle data
-  void createDataParticles();
-
-  // How to initialize at restart
-  void postRestartParticles(bool is_checkpoint = true);
-
-  // Post timestep particle functions
-  void postTimeStepParticles(int iteration);
-
-  // Post init for spray particles
-  void postInitParticles();
-
-  // Redistribute
-  void particle_redistribute(int lbase = 0, bool init_part = false) override;
-
-  // Setup ghost and virtual particles and do moveKickDrift
-  void particleMKD(
-    amrex::Real time,
-    amrex::Real dt,
-    int sub_iteration,
-    int sub_ncycle,
-    int amr_ncycle);
-
-  // Do the moveKick for active and ghost particles
-  void particleMK(
-    amrex::Real time,
-    amrex::Real dt,
-    int sub_iteration,
-    int sub_ncycle,
-    int amr_ncycle);
-
-  // Setup virtual particles if necessary
-  static void setupVirtualParticles(const int level, const int finest_level);
-
-  // Remove virtual particles if necessary
-  static void removeVirtualParticles(const int level);
-
-  // Setup ghost particles (for finer levels) if necessary
-  static void
-  setupGhostParticles(const int level, const int finest_level, const int ngrow);
-
-  // Remove ghost particles (for this level) if necessary
-  static void removeGhostParticles(const int level);
-
-  // Time step control based on particles
-  void estTimeStepParticles(amrex::Real& est_dt);
-
-  // Initialize the temporary spray source
-  void defineSpraySource(int amr_ncycle);
-  amrex::MultiFab tmp_spray_source;
-
-  // Determine the number of ghost cells for the state MF
-  int sprayStateGhosts(int amr_ncycle);
-
-  // Number of source terms in temporary spray data
-  static int num_spray_src;
-
-  // Should we write particle ascii files?
-  static int write_spray_ascii_files;
-
-  static std::unique_ptr<SprayParticleContainer> SprayPC;
-  static std::unique_ptr<SprayParticleContainer> VirtPC;
-  static std::unique_ptr<SprayParticleContainer> GhostPC;
-#endif
 
   // Get problem metrics.
   amrex::MultiFab* Area();
@@ -327,41 +228,6 @@ public:
     const amrex::MultiFab& state_new,
     amrex::MultiFab& forcing_src,
     int ng);
-
-  static bool add_soot_src;
-#ifdef PELEC_USE_SOOT
-  static void setSootIndx();
-
-  static void addSootDerivePlotVars(
-    amrex::DeriveList& derive_lst, const amrex::DescriptorList& desc_lst);
-
-  void construct_old_soot_source(amrex::Real time, amrex::Real dt);
-
-  void construct_new_soot_source(amrex::Real time, amrex::Real dt);
-
-  static void fill_soot_source(
-    amrex::Real time,
-    amrex::Real dt,
-    amrex::MultiFab& state,
-    amrex::MultiFab& soot_src,
-    int ng);
-
-  static void clipSootMoments(amrex::MultiFab& S_new, const int ng);
-
-  static bool plot_soot;
-#endif
-
-#ifdef PELEC_USE_MASA
-  void construct_old_mms_source(amrex::Real time);
-
-  void construct_new_mms_source(amrex::Real time);
-
-  void fill_mms_source(
-    amrex::Real time,
-    const amrex::MultiFab& S,
-    amrex::MultiFab& mms_src,
-    int ng);
-#endif
 
   void getLESTerm(
     amrex::Real time,
@@ -555,9 +421,6 @@ public:
   static int FirstAux;
   static int FirstLin;
 
-  /// Index locations for soot modeling components
-  static int FirstSootVar, NumSootVars;
-
   // This MultiFab is on the coarser level.  This is useful for the coarser
   // level to mask out the finer level.  We only build this when it is needed.
   // This coarse MultiFab has to live on the fine level because it must be
@@ -590,10 +453,6 @@ public:
     pele::physics::PhysicsType::transport_type>
     trans_parms;
 
-#ifdef PELEC_USE_SOOT
-  static SootModel soot_model;
-#endif
-
 protected:
   amrex::iMultiFab level_mask;
   std::array<const amrex::MultiCutFab*, AMREX_SPACEDIM> areafrac;
@@ -623,10 +482,6 @@ protected:
 
   void init_les();
   void init_filters();
-
-#ifdef PELEC_USE_MASA
-  static void init_mms();
-#endif
 
   static void clear_prob();
 
@@ -702,17 +557,8 @@ protected:
   amrex::MultiFab LES_Coeffs;
   amrex::MultiFab filtered_les_source;
 
-#ifdef PELEC_USE_MASA
-  static bool mms_initialized;
-  bool mms_src_evaluated;
-  amrex::MultiFab mms_source;
-#endif
-
   // There can be only one Diffusion object, it covers all levels:
   static class Diffusion* diffusion;
-
-  // Do spray particles
-  static bool do_spray_particles;
 
   static int num_state_type;
 

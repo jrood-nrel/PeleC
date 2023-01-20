@@ -2,11 +2,6 @@
 #include <AMReX_buildInfo.H>
 #include <memory>
 
-#ifdef PELEC_USE_MASA
-#include <masa.h>
-using namespace MASA;
-#endif
-
 #include "Transport.H"
 #include "mechanism.H"
 #include "PeleC.H"
@@ -14,17 +9,10 @@ using namespace MASA;
 #include "IndexDefines.H"
 #include "prob.H"
 
-#ifdef PELEC_USE_SOOT
-#include "SootModel.H"
-#endif
-
 ProbParmDevice* PeleC::d_prob_parm_device = nullptr;
 ProbParmDevice* PeleC::h_prob_parm_device = nullptr;
 ProbParmHost* PeleC::prob_parm_host = nullptr;
 TaggingParm* PeleC::tagging_parm = nullptr;
-#ifdef PELEC_USE_SOOT
-SootModel PeleC::soot_model;
-#endif
 
 // Components are:
 // Interior, Inflow, Outflow,  Symmetry,     SlipWall,     NoSlipWall, UserBC
@@ -147,17 +135,11 @@ PeleC::variableSetUp()
   d_prob_parm_device = static_cast<ProbParmDevice*>(
     amrex::The_Arena()->alloc(sizeof(ProbParmDevice)));
   trans_parms.allocate();
-  //turb_inflow.init(amrex::DefaultGeometry());
+  // turb_inflow.init(amrex::DefaultGeometry());
 
   // Get options, set phys_bc
   eb_in_domain = ebInDomain();
   read_params();
-
-#ifdef PELEC_USE_MASA
-  if (do_mms) {
-    init_mms();
-  }
-#endif
 
   // Set number of state variables and pointers to components
   int cnt = 0;
@@ -189,12 +171,6 @@ PeleC::variableSetUp()
     cnt += NUM_LIN; // NOLINT
   }
 
-#ifdef PELEC_USE_SOOT
-  // Set number of soot variables to be equal to the number of moments
-  // plus a variable for the weight of the delta function
-  NumSootVars = NUM_SOOT_MOMENTS + 1;
-  FirstSootVar = FirstLin;
-#endif
   amrex::MFInterpolater* interp;
 
   if (state_interp_order == 0) {
@@ -332,26 +308,6 @@ PeleC::variableSetUp()
     bcs[cnt] = bc;
     name[cnt] = "rho_" + aux_names[i];
   }
-
-#ifdef PELEC_USE_SOOT
-  // Set the soot model names
-  if (amrex::ParallelDescriptor::IOProcessor()) {
-    amrex::Print() << NumSootVars << " Soot Variables: " << std::endl;
-    for (int i = 0; i < NumSootVars; ++i) {
-      amrex::Print() << soot_model.sootVariableName(i) << ' ' << ' ';
-    }
-    amrex::Print() << std::endl;
-  }
-
-  for (int i = 0; i < NumSootVars; ++i) {
-    cnt++;
-    set_scalar_bc(bc, phys_bc);
-    bcs[cnt] = bc;
-    name[cnt] = soot_model.sootVariableName(i);
-  }
-  // Set soot indices
-  PeleC::setSootIndx();
-#endif
 
   amrex::StateDescriptor::BndryFunc bndryfunc1(pc_bcfill_hyp);
   bndryfunc1.setRunOnGPU(true);
@@ -523,12 +479,6 @@ PeleC::variableSetUp()
     amrex::DeriveRec::TheSameBox);
   derive_lst.addComponent("magmom", desc_lst, State_Type, Density, NVAR);
 
-#ifdef PELEC_USE_SOOT
-  if (add_soot_src) {
-    addSootDerivePlotVars(derive_lst, desc_lst);
-  }
-#endif
-
   derive_lst.add(
     "cp", amrex::IndexType::TheCellType(), 1, pc_dercp,
     amrex::DeriveRec::TheSameBox);
@@ -582,48 +532,11 @@ PeleC::variableSetUp()
     derive_lst.addComponent("Pr_T", desc_lst, State_Type, Density, 1);
   }
 
-  // MMS derives
-#ifdef PELEC_USE_MASA
-  if (do_mms) {
-    derive_lst.add(
-      "rhommserror", amrex::IndexType::TheCellType(), 1, pc_derrhommserror,
-      amrex::DeriveRec::TheSameBox);
-    derive_lst.addComponent("rhommserror", desc_lst, State_Type, Density, NVAR);
-
-    derive_lst.add(
-      "ummserror", amrex::IndexType::TheCellType(), 1, pc_derummserror,
-      amrex::DeriveRec::TheSameBox);
-    derive_lst.addComponent("ummserror", desc_lst, State_Type, Density, NVAR);
-
-    derive_lst.add(
-      "vmmserror", amrex::IndexType::TheCellType(), 1, pc_dervmmserror,
-      amrex::DeriveRec::TheSameBox);
-    derive_lst.addComponent("vmmserror", desc_lst, State_Type, Density, NVAR);
-
-    derive_lst.add(
-      "wmmserror", amrex::IndexType::TheCellType(), 1, pc_derwmmserror,
-      amrex::DeriveRec::TheSameBox);
-    derive_lst.addComponent("wmmserror", desc_lst, State_Type, Density, NVAR);
-
-    derive_lst.add(
-      "pmmserror", amrex::IndexType::TheCellType(), 1, pc_derpmmserror,
-      amrex::DeriveRec::TheSameBox);
-    derive_lst.addComponent("pmmserror", desc_lst, State_Type, Density, NVAR);
-  }
-#endif
-
   // Problem-specific derives
   add_problem_derives<ProblemDerives>(derive_lst, desc_lst);
 
-#ifdef PELEC_USE_SOOT
-  soot_model.define();
-#endif
-
   // Set list of active sources
   set_active_sources();
-#ifdef PELEC_USE_SPRAY
-  defineParticles();
-#endif
 
   read_tagging_params();
 }
@@ -663,23 +576,8 @@ PeleC::set_active_sources()
     src_list.push_back(forcing_src);
   }
 
-  if (add_soot_src) {
-    src_list.push_back(soot_src);
-  }
-
-  if (do_spray_particles) {
-    src_list.push_back(spray_src);
-  }
-
   // optional LES source
   if (do_les) {
     src_list.push_back(les_src);
   }
-
-#ifdef PELEC_USE_MASA
-  // optional MMS source
-  if (do_mms) {
-    src_list.push_back(mms_src);
-  }
-#endif
 }
